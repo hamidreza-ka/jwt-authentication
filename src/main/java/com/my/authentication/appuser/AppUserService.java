@@ -1,6 +1,5 @@
 package com.my.authentication.appuser;
 
-import com.my.authentication.exception.MyException;
 import com.my.authentication.registration.token.ConfirmationToken;
 import com.my.authentication.registration.token.ConfirmationTokenService;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -4,8 +4,10 @@ import com.my.authentication.appuser.AppUser;
 import com.my.authentication.jwt.JwtResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @AllArgsConstructor
@@ -30,13 +32,17 @@ public class RegistrationController {
         if (grantType.equals("password"))
             return registrationService.confirmToken(token);
 
-        throw new IllegalArgumentException("grant_type is invalid");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "grant_type is invalid");
+
     }
 
     @PostMapping("/login")
-    public JwtResponse login(@RequestParam("username") String userName, @RequestParam("password") String password)
+    public JwtResponse login(@RequestParam("username") String userName, @RequestParam("password") String password, @RequestParam("grant_type") String grantType)
     {
+        if (grantType.equals("password"))
         return registrationService.login(userName, password);
+
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "grant_type is invalid");
     }
 
     @GetMapping("/refresh")
@@ -44,6 +50,6 @@ public class RegistrationController {
         if (grantType.equals("refresh"))
             return registrationService.confirmRefreshToken(refreshToken);
 
-        throw new IllegalArgumentException("grant_type is invalid");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "grant_type is invalid");
     }
 }

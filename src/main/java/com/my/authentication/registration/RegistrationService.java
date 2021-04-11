@@ -4,26 +4,19 @@ import com.my.authentication.appuser.AppUser;
 import com.my.authentication.appuser.AppUserRole;
 import com.my.authentication.appuser.AppUserService;
 import com.my.authentication.email.EmailSender;
-import com.my.authentication.exception.MyException;
 import com.my.authentication.jwt.JwtResponse;
 import com.my.authentication.jwt.JwtUtil;
 import com.my.authentication.registration.blacklist.BlackListTokenService;
 import com.my.authentication.registration.token.ConfirmationToken;
 import com.my.authentication.registration.token.ConfirmationTokenService;
-import io.jsonwebtoken.Claims;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.MultiValueMapAdapter;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.HashMap;
 
 @Service
 @AllArgsConstructor

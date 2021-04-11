@@ -20,16 +20,17 @@ import java.util.function.Function;
 @Service
 public class JwtUtil {
 
-    String SECRET_KEY = "kljasdlkjKLAJSDKLJ4243ADkjasdkladasdlkqwed7520qokljasdlkj694964KLAJSDKLJADkjasdkladaslkqwe0qo";
+    // String SECRET_KEY = "kljasdlkjKLAJSDKLJ4243ADkjasdkladasdlkqwed7520qokljasdlkj694964KLAJSDKLJADkjasdkladaslkqwe0qo";
+    KeyPair keyPair = Keys.keyPairFor(SignatureAlgorithm.RS256);
 
     public String generateToken(UserDetails userDetails, boolean refreshToken) {
-        Map<String, Object> claims = new HashMap<>();
+        //  Map<String, Object> claims = new HashMap<>();
         if (refreshToken)
-            return createRefreshToken(claims, userDetails.getUsername());
-        return createToken(claims, userDetails.getUsername());
+            return createRefreshToken(userDetails.getUsername());
+        return createToken(userDetails.getUsername());
     }
 
-    private String createToken(Map<String, Object> claims, String subject) {
+    private String createToken(String subject) {
         Map<String, String> map = new HashMap<>();
         map.put("grant_type", "access_token");
         return Jwts.builder()
@@ -37,13 +38,12 @@ public class JwtUtil {
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 10)))
-                .setId(UUID.randomUUID().toString())
-                .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
+                .signWith(keyPair.getPrivate(), SignatureAlgorithm.RS256)
                 .compact();
 
     }
 
-    private String createRefreshToken(Map<String, Object> claims, String subject) {
+    private String createRefreshToken(String subject) {
         Map<String, String> map = new HashMap<>();
         map.put("grant_type", "refresh_token");
         return Jwts.builder()
@@ -51,8 +51,7 @@ public class JwtUtil {
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 150)))
-                .setId(UUID.randomUUID().toString())
-                .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
+                .signWith(keyPair.getPrivate(), SignatureAlgorithm.RS256)
                 .compact();
 
 
@@ -64,18 +63,18 @@ public class JwtUtil {
     }
 
     private Claims extractAllClaim(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+        return Jwts.parserBuilder().setSigningKey(keyPair.getPublic()).build().parseClaimsJws(token).getBody();
     }
 
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    public String extractGrantType(String token){
+    public String extractGrantType(String token) {
         return extractAllClaim(token).get("grant_type", String.class);
     }
 
-    public String extractTokenId(String token){
+    public String extractTokenId(String token) {
         return extractClaim(token, Claims::getId);
     }
 
@@ -92,11 +91,4 @@ public class JwtUtil {
         return extractClaim(token, Claims::getSubject);
     }
 
-    private KeyPair generateKeyPair() throws NoSuchAlgorithmException {
-
-        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-        generator.initialize(2048);
-
-        return generator.genKeyPair();
-    }
 }
